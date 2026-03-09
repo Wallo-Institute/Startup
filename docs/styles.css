@@ -1,10 +1,30 @@
+/* Keep your existing body styles if you like them, 
+   but I've adjusted them for better compatibility with the banner */
 body {
-  background-color: navy;
-  color: #f4f400;
+  background-color: #000080; /* Navy */
+  color: #f4f400; /* Yellow text */
   font-family: Arial, sans-serif;
+  margin: 0;
 }
 
-.container {
-  text-align: center;
+/* The Banner (Hero) Styling */
+.banner-section {
+  height: 350px;
+  background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
+              url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop'); 
+  background-size: cover;
+  background-position: center;
   color: #f4f4f4;
+  border-bottom: 5px solid #f4f400;
+}
+
+/* Ensure the sidebar links look clean */
+.offcanvas .nav-link {
+  font-size: 1.2rem;
+  padding: 15px 0;
+  border-bottom: 1px solid #444;
+}
+
+.offcanvas .nav-link:hover {
+  color: #f4f400 !important;
 }

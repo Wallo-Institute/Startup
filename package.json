@@ -1,0 +1,24 @@
+{
+  "name": "startup",
+  "version": "1.0.0",
+  "description": "Initial startup code, experiments, and documentation used to create The Wallo Institute.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Wallo-Institute/Startup.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/Wallo-Institute/Startup/issues"
+  },
+  "homepage": "https://github.com/Wallo-Institute/Startup#readme"
+}

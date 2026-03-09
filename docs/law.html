@@ -26,39 +26,54 @@
 </div>
 
 <script>
-    // This script replaces the need for a Database/Node.js for now
     async function loadLaws() {
-        const response = await fetch('laws.json');
-        const laws = await response.json();
+        // Pointing directly to the Virginia LIS endpoint
+        const apiURL = 'https://law.lis.virginia.gov/jsonapi/CoVTitlesGetListOfJson';
         const container = document.getElementById('lawContainer');
         const searchInput = document.getElementById('lawSearch');
+        
+        try {
+            const response = await fetch(apiURL);
+            if (!response.ok) throw new Error("Could not connect to VA Law API");
+            
+            const rawData = await response.json();
 
-        function displayLaws(filteredLaws) {
-            container.innerHTML = filteredLaws.map(law => `
-                <div class="col-md-6">
-                    <div class="card bg-navy border-warning h-100">
-                        <div class="card-body">
-                            <h5 class="card-title text-warning">${law.code}</h5>
-                            <h6 class="card-subtitle mb-2 text-white">${law.title}</h6>
-                            <p class="card-text text-light-50">${law.description}</p>
+            // LIS uses 'titleNumber' and 'title'. We map them to your card format:
+            const laws = rawData.map(item => ({
+                code: `Title ${item.titleNumber}`,
+                title: item.title,
+                description: "Click to explore chapters in this section of the Virginia Code."
+            }));
+
+            function displayLaws(filteredLaws) {
+                container.innerHTML = filteredLaws.map(law => `
+                    <div class="col-md-6">
+                        <div class="card bg-navy border-warning h-100">
+                            <div class="card-body">
+                                <h5 class="card-title text-warning">${law.code}</h5>
+                                <h6 class="card-subtitle mb-2 text-white">${law.title}</h6>
+                                <p class="card-text text-light-50">${law.description}</p>
+                            </div>
                         </div>
                     </div>
-                </div>
-            `).join('');
+                `).join('');
+            }
+
+            displayLaws(laws);
+
+            searchInput.addEventListener('input', (e) => {
+                const term = e.target.value.toLowerCase();
+                const filtered = laws.filter(l => 
+                    l.title.toLowerCase().includes(term) || 
+                    l.code.toLowerCase().includes(term)
+                );
+                displayLaws(filtered);
+            });
+
+        } catch (error) {
+            console.error(error);
+            container.innerHTML = `<div class="text-danger">Failed to load live data: ${error.message}</div>`;
         }
-
-        // Initial display
-        displayLaws(laws);
-
-        // Search functionality
-        searchInput.addEventListener('input', (e) => {
-            const term = e.target.value.toLowerCase();
-            const filtered = laws.filter(l => 
-                l.title.toLowerCase().includes(term) || 
-                l.code.toLowerCase().includes(term)
-            );
-            displayLaws(filtered);
-        });
     }
 
     loadLaws();

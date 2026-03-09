@@ -28,3 +28,21 @@ body {
 .offcanvas .nav-link:hover {
   color: #f4f400 !important;
 }
+
+.bg-navy {
+    background-color: #000080 !important;
+}
+
+#lawSearch::placeholder {
+    color: #cccccc;
+}
+
+/* Make the law cards pop slightly on hover */
+.card {
+    transition: transform 0.2s ease;
+    cursor: pointer;
+}
+.card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 15px rgba(244, 244, 0, 0.2);
+}

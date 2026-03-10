@@ -1,0 +1,38 @@
+name: Daily Law Update
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Runs every night at midnight
+  workflow_dispatch: # Allows you to run it manually for testing
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install dependencies
+        run: |
+          cd Startup
+          npm install
+
+      - name: Run Scraper
+        env:
+          LIS_API_KEY: ${{ secrets.LIS_API_KEY }}
+        run: |
+          cd Startup
+          node scraper.js
+
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+          git add docs/laws.json
+          git commit -m "Automated law update" || exit 0
+          git push

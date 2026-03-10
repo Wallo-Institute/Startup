@@ -5,6 +5,9 @@ on:
     - cron: '0 0 * * *' # Runs every night at midnight
   workflow_dispatch: # Allows you to run it manually for testing
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -15,19 +18,16 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '24'
+          node-version: '20'
 
       - name: Install dependencies
-        run: |
-          cd Startup
-          npm install
+        run: npm install
 
       - name: Run Scraper
         env:
-          LIS_API_KEY: ${{ secrets.LIS_API_KEY }}
-        run: |
-          cd Startup
-          node scraper.js
+          # This now matches your corrected Secret name exactly
+          LIS_API_KEY: ${{ secrets.LIS_API_KEY }} 
+        run: node scraper.js
 
       - name: Commit and Push changes
         run: |
@@ -35,4 +35,11 @@ jobs:
           git config --global user.email "action@github.com"
           git add docs/laws.json
           git commit -m "Automated law update" || exit 0
-          git push
+          
+          # This pushes the new data to your main branch
+          git push origin main 
+          
+          # This ensures the publish-site branch (your live website) also gets the update
+          git checkout publish-site
+          git merge main
+          git push origin publish-site

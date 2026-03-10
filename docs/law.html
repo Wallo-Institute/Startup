@@ -28,7 +28,7 @@
 <script>
     async function loadLaws() {
         // Pointing directly to the Virginia LIS endpoint
-        const apiURL = 'https://law.lis.virginia.gov/jsonapi/CoVTitlesGetListOfJson';
+       	const apiURL = './laws.json';
         const container = document.getElementById('lawContainer');
         const searchInput = document.getElementById('lawSearch');
         
@@ -78,5 +78,10 @@
 
     loadLaws();
 </script>
+
+<footer class="bg-dark text-center py-4 border-top border-warning mt-5">
+    <p class="text-white-50">© 2026 The Wallo Institute. All Rights Reserved.</p>
+    <p class="small text-muted">Unauthorized copying or commercial distribution is prohibited.</p>
+</footer>
 </body>
 </html>

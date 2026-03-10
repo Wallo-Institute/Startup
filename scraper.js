@@ -1,64 +1,58 @@
 import fs from 'fs';
 
-// It now checks the Environment Variable you set in GitHub Actions
 const API_KEY = process.env.LIS_API_KEY;
-const MOCK_MODE = !API_KEY; // If no key is found, it defaults to Mock Mode
+const MOCK_MODE = !API_KEY;
 
 async function scrapeLaws() {
     console.log(MOCK_MODE ? "Running in MOCK MODE" : "Running with Live API Key");
     
-    // Safety check: print the first 4 characters of the key to verify it exists
-    if (API_KEY) {
-        console.log(`Key detected: ${API_KEY.substring(0, 4)}****`);
-    }
-
     let laws = [];
 
     if (MOCK_MODE) {
-        laws = [
-            { code: "§ 1.1-1", title: "The Mock Statute", description: "Test entry for Wallo Institute." },
-            { code: "§ 8.01-1", title: "Civil Procedure Test", description: "Another test entry." }
-        ];
+        laws = [{ code: "§ 1-1", title: "Mock", description: "Mock data." }];
     } else {
         try {
-            const response = await fetch('https://lis.virginia.gov/api/v1/code-sections', {
+            // TARGETING A SPECIFIC CHAPTER (Title 1) 
+            // This is more likely to work than asking for the whole database
+            const url = 'https://lis.virginia.gov/api/v1/code-sections?title=1';
+            
+            console.log(`Fetching: ${url}`);
+            
+            const response = await fetch(url, {
                 headers: { 
                     'WebAPIKey': API_KEY,
-                    'User-Agent': 'Wallo-Institute-Law-Scraper/1.0'
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) WalloBot/1.0',
+                    'Accept': 'application/json'
                 }
             });
 
-            // If the response isn't JSON, this will catch the HTML error page
+            console.log(`Status: ${response.status} ${response.statusText}`);
+            
             const text = await response.text();
-            let data;
-            try {
-                data = JSON.parse(text);
-            } catch (e) {
-                console.error("The API returned HTML instead of JSON. Check if the API key is valid or if the service is down.");
+            
+            if (text.includes('<!doctype') || text.includes('<html')) {
+                console.error("BLOCK DETECTED: The server sent back a webpage/firewall block.");
+                console.log("Response starts with:", text.substring(0, 100));
                 return;
             }
 
-            // Mapping the LIS data to your specific JSON format
+            const data = JSON.parse(text);
             if (data.ListItems) {
                 laws = data.ListItems.map(item => ({
                     code: item.SectionNumber,
                     title: item.CatchLine,
-                    description: item.SectionText ? item.SectionText.substring(0, 200) + "..." : "No description available."
+                    description: item.SectionText ? item.SectionText.substring(0, 200) + "..." : ""
                 }));
             }
         } catch (err) {
-            console.error("API Fetch failed:", err.message);
+            console.error("CRITICAL ERROR:", err.message);
             return;
         }
     }
 
-    // Ensure the directory exists before writing
-    if (!fs.existsSync('./docs')) { 
-        fs.mkdirSync('./docs'); 
-    }
-    
+    if (!fs.existsSync('./docs')) { fs.mkdirSync('./docs'); }
     fs.writeFileSync('./docs/laws.json', JSON.stringify(laws, null, 2));
-    console.log(`Success! docs/laws.json has been updated with ${laws.length} entries.`);
+    console.log(`Successfully wrote ${laws.length} laws to docs/laws.json`);
 }
 
 scrapeLaws();

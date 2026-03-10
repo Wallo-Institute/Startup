@@ -23,21 +23,21 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Run Scraper
+- name: Run Scraper
         env:
-          # This now matches your corrected Secret name exactly
-          LIS_API_KEY: ${{ secrets.LIS_API_KEY }} 
-        run: node scraper.js
+          LIS_API_KEY: ${{ secrets.LIS_API_KEY }}
+        run: |
+          cd Startup
+          node scraper.js
 
       - name: Commit and Push changes
         run: |
           git config --global user.name "GitHub Action"
           git config --global user.email "action@github.com"
-          git add docs/laws.json
+          # Notice the 'Startup/' prefix below
+          git add Startup/docs/laws.json 
           git commit -m "Automated law update" || exit 0
-          
-          # This pushes the new data to your main branch
-          git push origin main 
+          git push origin main
           
           # This ensures the publish-site branch (your live website) also gets the update
           git checkout publish-site

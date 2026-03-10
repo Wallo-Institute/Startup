@@ -2,8 +2,8 @@ name: Daily Law Update
 
 on:
   schedule:
-    - cron: '0 0 * * *' 
-  workflow_dispatch: 
+    - cron: '15 2 * * *' # Runs at 9:15 PM EST (2:15 AM UTC)
+  workflow_dispatch: # Manual "Run" button
 
 permissions:
   contents: write
@@ -15,7 +15,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Important for merging branches later
+          fetch-depth: 0 # Necessary to switch branches for the sync step
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -23,32 +23,28 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        # Runs install inside the Startup folder
-        run: |
-          cd Startup
-          npm install
+        run: npm install
 
       - name: Run Scraper
         env:
           LIS_API_KEY: ${{ secrets.LIS_API_KEY }}
-        run: |
-          cd Startup
-          node scraper.js
+        run: node scraper.js
 
       - name: Commit and Push changes
         run: |
           git config --global user.name "GitHub Action"
           git config --global user.email "action@github.com"
           
-          # Add the specific file relative to the repo root
-          git add Startup/docs/laws.json 
+          # Stage the updated JSON file
+          git add docs/laws.json
           
+          # Commit only if there are changes
           git commit -m "Automated law update" || exit 0
           
-          # Push to main
+          # Push the update to the main branch
           git push origin main
           
-          # Sync to your publishing branch
+          # Sync the new data to the live website branch
           git checkout publish-site
           git merge main
           git push origin publish-site
